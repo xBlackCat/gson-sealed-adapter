@@ -1,0 +1,24 @@
+*
+!/**/
+!*.*
+# Marathon test runner ищет конфиг с именем `Marathonfile` (без расширения).
+!Marathonfile
+*.iml
+.doc
+.gradle
+.idea
+*.log
+/local.properties
+.DS_Store
+/build
+/captures
+.kotlin
+/app/allure-results/
+/docs/.youtrack-dump/
+/.agents/skills/youtrack-task/config.json
+/tmp/candidates.txt
+/tmp/commits.txt
+/tmp/parse_table.js
+/tmp/table_parsed.txt
+".agents/skills/youtrack-task/config.json"  
+/tmp

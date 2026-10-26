@@ -1,0 +1,23 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    // NOTE: the settings plugins {} block cannot reference the version catalog (libs),
+    // so the foojay-resolver version stays hardcoded here.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+    }
+}
+
+rootProject.name = "GSON Kotlin Sealed Class Adapter"
+include ':sealed-adapter-api'
+include ':sealed-adapter-compiler'

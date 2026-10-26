@@ -1,0 +1,41 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'java-gradle-plugin'
+}
+
+def TARGET_JAVA_VERSION = JavaVersion.toVersion(libs.versions.jvmToolchain.get())
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(libs.versions.jvmToolchain.get() as int))
+    }
+}
+
+compileJava {
+    sourceCompatibility = TARGET_JAVA_VERSION
+    targetCompatibility = TARGET_JAVA_VERSION
+}
+
+dependencies {
+    // The plugin is compiled against the Kotlin compiler API. `compileOnly` keeps it
+    // off the runtime classpath — the compiler itself provides these classes at runtime.
+    compileOnly "org.jetbrains.kotlin:kotlin-compiler-embeddable:${libs.versions.kotlin.get()}"
+    implementation libs.kotlin.stdlib
+
+    // Gradle plugin API (KotlinCompilerPluginSupportPlugin lives in kotlin-gradle-plugin-api).
+    compileOnly "org.jetbrains.kotlin:kotlin-gradle-plugin-api:${libs.versions.kotlin.get()}"
+}
+
+gradlePlugin {
+    plugins {
+        sealedAdapter {
+            id = 'org.xblackcat.gson.sealed-adapter'
+            implementationClass = 'org.xblackcat.gson.adapter.gradle.SealedAdapterGradlePlugin'
+        }
+    }
+}
+compileKotlin {
+    compilerOptions {
+        freeCompilerArgs.set(["-Xcontext-parameters"])
+    }
+}

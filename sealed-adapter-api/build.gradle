@@ -1,0 +1,21 @@
+plugins {
+    alias(libs.plugins.kotlinJvm)
+}
+
+def TARGET_JAVA_VERSION = JavaVersion.toVersion(libs.versions.jvmToolchain.get())
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(libs.versions.jvmToolchain.get() as int))
+    }
+}
+
+compileJava {
+    sourceCompatibility = TARGET_JAVA_VERSION
+    targetCompatibility = TARGET_JAVA_VERSION
+}
+
+dependencies {
+    api libs.gson
+    api libs.bundles.kotlin
+}
