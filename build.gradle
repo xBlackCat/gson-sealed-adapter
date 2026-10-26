@@ -8,7 +8,58 @@ buildscript {
 }
 
 plugins {
-    alias(libs.plugins.ksp) apply false
-    alias(libs.plugins.koinCompiler) apply false
     alias(libs.plugins.kotlinJvm)
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.mavenPublish) apply false
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared configuration for all subprojects
+// ─────────────────────────────────────────────────────────────────────────────
+
+group = 'org.xblackcat.gson'
+version = new File(rootProject.projectDir, 'version.txt').text.trim()
+
+subprojects {
+    group = rootProject.group
+    version = rootProject.version
+
+    // Skip publishing for internal test modules
+    if (project.name.endsWith('-test')) {
+        return
+    }
+
+    // Apply the maven-publish plugin (handles publications, sources/javadoc jars,
+    // signing, and Maven Central upload automatically).
+    apply plugin: 'com.vanniktech.maven.publish'
+
+    mavenPublishing {
+        pom {
+            name = project.name
+            description = "GSON Kotlin Sealed Class Adapter — ${project.name}"
+            url = 'https://github.com/xBlackCat/gson-sealed-adapter'
+
+            licenses {
+                license {
+                    name = 'The Apache Software License, Version 2.0'
+                    url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution = 'repo'
+                }
+            }
+
+            developers {
+                developer {
+                    id = 'xBlackCat'
+                    name = 'Zhukov Alexei'
+                    email = 'xblackcat@gmail.com'
+                }
+            }
+
+            scm {
+                url = 'https://github.com/xBlackCat/gson-sealed-adapter'
+                connection = 'scm:git@github.com:xBlackCat/gson-sealed-adapter.git'
+                developerConnection = 'scm:git@github.com:xBlackCat/gson-sealed-adapter.git'
+            }
+        }
+    }
 }

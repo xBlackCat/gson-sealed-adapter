@@ -19,3 +19,7 @@ dependencies {
     api libs.gson
     api libs.bundles.kotlin
 }
+
+test {
+    useJUnitPlatform()
+}

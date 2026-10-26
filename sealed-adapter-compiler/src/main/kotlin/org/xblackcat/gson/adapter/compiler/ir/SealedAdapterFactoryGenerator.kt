@@ -90,22 +90,26 @@ internal class SealedAdapterFactoryGenerator(
 
     /**
      * Recursively collects ALL subclasses of [root] (intermediate sealed classes
-     * and concrete leaves). The old hand-written factories registered every level
-     * of the hierarchy (e.g. `TargetAction`, `TargetScreen`, `TargetScreen.Chat`),
-     * so deserialization of intermediate types must keep working.
+     * and concrete leaves), assigning each a unique **path-based name**.
+     *
+     * Direct children get their simple name (`"One"`), nested children get a
+     * dot-separated path (`"BaseBlock.One"`). This avoids collisions when
+     * different branches of the hierarchy contain classes with the same simple name.
      */
-    private fun collectAllSubclasses(root: IrClass): List<IrClass> {
-        val result = mutableListOf<IrClass>()
-        fun visit(cls: IrClass) {
+    private fun collectAllSubclasses(root: IrClass): List<Pair<String, IrClass>> {
+        val result = mutableListOf<Pair<String, IrClass>>()
+        fun visit(cls: IrClass, prefix: String) {
             for (sub in cls.sealedSubclasses) {
                 val subOwner = sub.owner
-                result.add(subOwner)
+                val name = if (prefix.isEmpty()) subOwner.name.asString()
+                           else "$prefix.${subOwner.name.asString()}"
+                result.add(name to subOwner)
                 if (subOwner.sealedSubclasses.isNotEmpty()) {
-                    visit(subOwner)
+                    visit(subOwner, name)
                 }
             }
         }
-        visit(root)
+        visit(root, "")
         return result
     }
 
@@ -115,7 +119,7 @@ internal class SealedAdapterFactoryGenerator(
     private fun IrBuilderWithScope.buildSuperCall(
         baseClassSymbol: IrClassSymbol,
         targetType: IrType,
-        subclasses: List<IrClass>,
+        subclasses: List<Pair<String, IrClass>>,
     ): IrExpression {
         val baseClass = baseClassSymbol.owner
         val superCtor = baseClass.constructors.single()
@@ -145,9 +149,9 @@ internal class SealedAdapterFactoryGenerator(
         )
         val pairCtor = pairSymbol.owner.constructors.single()
 
-        val pairExpressions = subclasses.map { sub ->
+        val pairExpressions = subclasses.map { (name, sub) ->
             val pairExpr = irCall(pairCtor.symbol, pairType)
-            pairExpr.arguments[0] = irString(sub.name.asString())
+            pairExpr.arguments[0] = irString(name)
             val kClassSubType = kClassSymbol.createType(
                 hasQuestionMark = false,
                 arguments = listOf(sub.defaultType),

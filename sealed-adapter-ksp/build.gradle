@@ -1,0 +1,29 @@
+plugins {
+    alias(libs.plugins.kotlinJvm)
+}
+
+def TARGET_JAVA_VERSION = JavaVersion.toVersion(libs.versions.jvmToolchain.get())
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(libs.versions.jvmToolchain.get() as int))
+    }
+}
+
+compileJava {
+    sourceCompatibility = TARGET_JAVA_VERSION
+    targetCompatibility = TARGET_JAVA_VERSION
+}
+
+dependencies {
+    // KSP API — compileOnly, provided by the KSP runtime at processing time.
+    compileOnly "com.google.devtools.ksp:symbol-processing-api:${libs.versions.ksp.get()}"
+
+    // The generated code references ASealedTypeAdapterFactory, so we need it on the
+    // processor classpath for code generation (not strictly required at runtime, but
+    // useful for IDE resolution and testing).
+    implementation project(':sealed-adapter-api')
+
+    // Kotlin stdlib for KClass references in generated code.
+    implementation libs.kotlin.stdlib
+}

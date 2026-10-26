@@ -1,0 +1,30 @@
+plugins {
+    alias(libs.plugins.kotlinJvm)
+}
+
+def TARGET_JAVA_VERSION = JavaVersion.toVersion(libs.versions.jvmToolchain.get())
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(libs.versions.jvmToolchain.get() as int))
+    }
+}
+
+compileJava {
+    sourceCompatibility = TARGET_JAVA_VERSION
+    targetCompatibility = TARGET_JAVA_VERSION
+}
+
+dependencies {
+    implementation project(':sealed-adapter-api')
+    kotlinCompilerPluginClasspath project(':sealed-adapter-compiler')
+    implementation libs.kotlin.stdlib
+
+    testImplementation platform(libs.junit.bom)
+    testImplementation libs.junit.jupiter
+    testRuntimeOnly libs.junit.platform.launcher
+}
+
+test {
+    useJUnitPlatform()
+}

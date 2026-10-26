@@ -21,3 +21,6 @@ dependencyResolutionManagement {
 rootProject.name = "GSON Kotlin Sealed Class Adapter"
 include ':sealed-adapter-api'
 include ':sealed-adapter-compiler'
+include ':sealed-adapter-kcp-test'
+include ':sealed-adapter-ksp'
+include ':sealed-adapter-ksp-test'

@@ -16,6 +16,26 @@ compileJava {
     targetCompatibility = TARGET_JAVA_VERSION
 }
 
+// ── Generate version.properties at build time ──────────────────────────────
+// The plugin reads this at runtime to know its own version, so it can
+// auto-add the matching `sealed-adapter-api` dependency.
+def versionPropsDir = layout.buildDirectory.dir('generated/properties/sealed-adapter')
+def generateVersionProps = tasks.register('generateVersionProps') {
+    def propsFile = versionPropsDir.map { it.file('version.properties') }
+    inputs.property('version', project.version)
+    outputs.file(propsFile)
+    doLast {
+        def file = propsFile.get().asFile
+        file.parentFile.mkdirs()
+        file.text = "version=${project.version}\n"
+    }
+}
+
+sourceSets.main.resources.srcDir(versionPropsDir)
+tasks.named('processResources') { dependsOn(generateVersionProps) }
+// sourcesJar is created later by the maven-publish plugin — configure lazily.
+tasks.matching { it.name == 'sourcesJar' }.configureEach { dependsOn(generateVersionProps) }
+
 dependencies {
     // The plugin is compiled against the Kotlin compiler API. `compileOnly` keeps it
     // off the runtime classpath — the compiler itself provides these classes at runtime.
@@ -32,10 +52,5 @@ gradlePlugin {
             id = 'org.xblackcat.gson.sealed-adapter'
             implementationClass = 'org.xblackcat.gson.adapter.gradle.SealedAdapterGradlePlugin'
         }
-    }
-}
-compileKotlin {
-    compilerOptions {
-        freeCompilerArgs.set(["-Xcontext-parameters"])
     }
 }
